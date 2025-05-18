@@ -5,6 +5,7 @@ function App() {
   const [resume, setResume] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState<File | null>(null);
   const [interviewStarted, setInterviewStarted] = useState(false);
+  const [interviewEnded, setInterviewEnded] = useState(false);
   const [messages, setMessages] = useState<Array<{ text: string; sender: 'AI' | 'User' }>>([]);
   const [userInput, setUserInput] = useState('');
   const [currentQuestionId, setCurrentQuestionId] = useState(0);
@@ -86,12 +87,34 @@ function App() {
         setCurrentQuestionId(data.current_question_id);
         if(!data.question) {
           setMessages(prev => [...prev, { text: "Your interview has ended. Thank you for your time.", sender: 'AI' }]);
+          setInterviewEnded(true); // Add state to control button visibility
         } else {
           setMessages(prev => [...prev, { text: data.question, sender: 'AI' }]);
         }
       } catch (error) {
         console.error('Error getting AI response:', error);
       }
+    }
+  };
+
+  const handleEndInterview = async () => {
+    try {
+      const response = await fetch('https://ai-interview-backend-5tfz.onrender.com/api/end-interview', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          interviewId: window.localStorage.getItem('interviewId'),
+        }),
+      });
+
+      const data = await response.json();
+      console.log("FEEDBACK", data);
+      setMessages(prev => [...prev, { text: data.feedback, sender: 'AI' }]);
+      setInterviewEnded(true);
+    } catch (error) {
+      console.error('Error ending interview:', error);
     }
   };
 
@@ -120,15 +143,19 @@ function App() {
                 </div>
               ))}
             </div>
-            <form onSubmit={handleUserInputSubmit}>
-              <input
-                type="text"
-                value={userInput}
-                onChange={handleUserInputChange}
-                placeholder="Type your answer..."
-              />
-              <button type="submit">Send</button>
-            </form>
+            {!interviewEnded ? (
+              <form onSubmit={handleUserInputSubmit}>
+                <input
+                  type="text"
+                  value={userInput}
+                  onChange={handleUserInputChange}
+                  placeholder="Type your answer..."
+                />
+                <button type="submit">Send</button>
+              </form>
+            ) : (
+              <button onClick={handleEndInterview}>End Interview</button>
+            )}
           </div>
         )}
       </header>
