@@ -141,44 +141,52 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Upload Your Resume and Job Description</h1>
         {showFeedback ? (
-          renderFeedback()
-        ) : !interviewStarted ? (
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="resume">Resume:</label>
-              <input type="file" id="resume" onChange={handleResumeChange} accept=".pdf,.docx" />
-            </div>
-            <div>
-              <label htmlFor="jobDescription">Job Description:</label>
-              <input type="file" id="jobDescription" onChange={handleJobDescriptionChange} accept=".pdf,.docx" />
-            </div>
-            <button type="submit">Start Interview</button>
-          </form>
-        ) : (
-          <div className="chat-interface">
-            <div className="messages">
-              {messages.map((msg, index) => (
-                <div key={index} className={`message ${msg.sender.toLowerCase()}`}>
-                  {msg.text}
-                </div>
-              ))}
-            </div>
-            {!interviewEnded ? (
-              <form onSubmit={handleUserInputSubmit}>
-                <input
-                  type="text"
-                  value={userInput}
-                  onChange={handleUserInputChange}
-                  placeholder="Type your answer..."
-                />
-                <button type="submit">Send</button>
-              </form>
-            ) : (
-              <button onClick={handleEndInterview}>End Interview</button>
-            )}
+          <div>
+            <h1>Interview Feedback</h1>
+            <p>{feedback}</p>
           </div>
+        ) : !interviewStarted ? (
+          <>
+            <h1>Upload Your Resume and Job Description</h1>
+            <form onSubmit={handleSubmit}>
+              <div>
+                <label htmlFor="resume">Resume:</label>
+                <input type="file" id="resume" onChange={handleResumeChange} accept=".pdf,.docx" />
+              </div>
+              <div>
+                <label htmlFor="jobDescription">Job Description:</label>
+                <input type="file" id="jobDescription" onChange={handleJobDescriptionChange} accept=".pdf,.docx" />
+              </div>
+              <button type="submit">Start Interview</button>
+            </form>
+          </>
+        ) : (
+          <>
+            <h1>AI Interview in Progress</h1>
+            <div className="chat-interface">
+              <div className="messages">
+                {messages.map((msg, index) => (
+                  <div key={index} className={`message ${msg.sender.toLowerCase()}`}>
+                    {msg.text}
+                  </div>
+                ))}
+              </div>
+              {!interviewEnded ? (
+                <form onSubmit={handleUserInputSubmit}>
+                  <input
+                    type="text"
+                    value={userInput}
+                    onChange={handleUserInputChange}
+                    placeholder="Type your answer..."
+                  />
+                  <button type="submit">Send</button>
+                </form>
+              ) : (
+                <button onClick={handleEndInterview}>End Interview</button>
+              )}
+            </div>
+          </>
         )}
       </header>
     </div>
