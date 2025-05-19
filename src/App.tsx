@@ -6,6 +6,8 @@ function App() {
   const [jobDescription, setJobDescription] = useState<File | null>(null);
   const [interviewStarted, setInterviewStarted] = useState(false);
   const [interviewEnded, setInterviewEnded] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedback, setFeedback] = useState('');
   const [messages, setMessages] = useState<Array<{ text: string; sender: 'AI' | 'User' }>>([]);
   const [userInput, setUserInput] = useState('');
   const [currentQuestionId, setCurrentQuestionId] = useState(0);
@@ -111,18 +113,38 @@ function App() {
 
       const data = await response.json();
       console.log("FEEDBACK", data);
-      setMessages(prev => [...prev, { text: data.feedback, sender: 'AI' }]);
-      setInterviewEnded(true);
+      setFeedback(data.feedback);
+      setShowFeedback(true);
     } catch (error) {
       console.error('Error ending interview:', error);
     }
   };
 
+  const renderFeedback = () => (
+    <div className="feedback-container">
+      <h2>Feedback for your interview</h2>
+      <div className="feedback-content">
+        {feedback.split('\n').map((paragraph, index) => (
+          <p key={index}>{paragraph}</p>
+        ))}
+      </div>
+      <button onClick={() => {
+        setShowFeedback(false);
+        setInterviewStarted(false);
+        setInterviewEnded(false);
+        setMessages([]);
+        setFeedback('');
+      }}>Start New Interview</button>
+    </div>
+  );
+
   return (
     <div className="App">
       <header className="App-header">
         <h1>Upload Your Resume and Job Description</h1>
-        {!interviewStarted ? (
+        {showFeedback ? (
+          renderFeedback()
+        ) : !interviewStarted ? (
           <form onSubmit={handleSubmit}>
             <div>
               <label htmlFor="resume">Resume:</label>
